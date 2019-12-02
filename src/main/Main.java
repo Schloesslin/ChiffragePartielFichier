@@ -9,5 +9,6 @@ public class Main {
 		PrincipalFrame principal = new PrincipalFrame();
 		principal.getFrame().setVisible(true);
 	}
+	
 
 }
