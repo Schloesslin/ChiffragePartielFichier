@@ -1,5 +1,6 @@
 package main;
 
+
 import controler.AbstractControler;
 import controler.Controler;
 import model.AbstractModel;
@@ -15,5 +16,6 @@ public class Main {
 		View view = new View(controler);
 		model.addObserver(view);
 	}
+	
 
 }
