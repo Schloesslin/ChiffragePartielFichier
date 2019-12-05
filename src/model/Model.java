@@ -21,6 +21,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class Model extends AbstractModel {
 
+
 	public Model() {
 		this.allSelected = false;
 		File file = new File("");
@@ -67,38 +68,117 @@ public class Model extends AbstractModel {
 		return folderPath;
 	}
 	
-	@Override
-	public String readAllFile(String file) throws IOException {
-		// TODO Auto-generated method stub
-		BufferedReader reader = new BufferedReader(new FileReader(this.getFolderPath(this.getPath()) + file + ".txt"));
-		String ligne = new String("");
-		StringBuffer fichier = new StringBuffer();
-		while ((ligne = reader.readLine()) != null) {
-			fichier.append(ligne);
-			fichier.append("\n");
+	public ArrayList<Integer> getBlocks(String blocks){
+		String block[] = blocks.split("[- ]");
+		List<String> tmp = Arrays.asList(block);
+		ArrayList<String> single = new ArrayList<String>(tmp);
+		ArrayList<Integer> listBlocks = new ArrayList<Integer>();
+		for (int i=0; i<single.size(); i++) {
+			listBlocks.add(Integer.parseInt(single.get(i).trim()));
 		}
-		reader.close();
-		return fichier.toString().trim();
+		
+		return listBlocks;
 	}
 	
-	@Override
-	public String readFile(String file, int start, int stop) throws IOException {
-		// TODO Auto-generated method stub
-		BufferedReader reader = new BufferedReader(new FileReader(this.getFolderPath(this.getPath()) + file + ".txt"));
-		String ligne;
-		StringBuffer fichier = new StringBuffer();
+	
+	
+	public String readWithKey(String file, Key key) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException{
+		StringBuffer out = new StringBuffer("");
+		StringBuffer toDecrypt = new StringBuffer("");
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		String line = new String("");
+		Boolean isCryptedPart = false;
+		while ((line = reader.readLine()) != null) {
+			if (line.equals("Crypted Part")) {
+
+				isCryptedPart = true;
+			}
+			else if (line.equals("End Crypted Part")) {
+				out.append(this.decryptText(toDecrypt.toString().trim(), key));
+				isCryptedPart = false;
+				toDecrypt = new StringBuffer("");
+			}
+			else {
+				if (isCryptedPart) {
+					toDecrypt.append(line+"\n");
+				}
+				else {
+					out.append(line+"\n");
+				}
+			}
+			
+			
+			
+			
+		}
+		reader.close();
+		return out.toString();
+	}
+	
+	
+	
+	public String readWithouthKey(String file) throws IOException {
+		StringBuffer out = new StringBuffer("");
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		String line = new String("");
+		Boolean isCryptedPart = false;
+		while ((line = reader.readLine()) != null) {
+			if (line.equals("Crypted Part")) {
+				isCryptedPart = true;
+			}
+			else if (line.equals("End Crypted Part")) {
+				isCryptedPart = false;
+			}
+			else {
+				if (!isCryptedPart) {
+					out.append(line+"\n");
+				}
+				
+			}
+			
+			
+			
+			
+		}
+		reader.close();
+		return out.toString();
+	}
+	
+	public String writeTemp(String file, ArrayList<Integer> start, ArrayList<Integer> stop, Key key) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+		StringBuffer out = new StringBuffer("");
+		StringBuffer toCrypt = new StringBuffer("");
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		String line = new String("");
+		boolean cryptPart = false;
 		int countLine = 1;
-		while ((ligne = reader.readLine()) != null) {
-			if (countLine <= stop && countLine >= start) {
-				fichier.append(ligne);
-				fichier.append("\n");
+		while ((line = reader.readLine()) != null) {
+			if (start.contains(countLine)) {
+				out.append("Crypted Part\n");
+				toCrypt.append(line+"\n");
+				cryptPart = true;
+			}
+			else if (stop.contains(countLine)) {
+				toCrypt.append(line+"\n");
+				out.append(this.cryptText(toCrypt.toString(), key)+"\n");
+				out.append("End Crypted Part\n");
+				toCrypt = new StringBuffer("");
+				cryptPart=false;
+			}
+			else if (cryptPart) {
+				toCrypt.append(line+"\n");
+			}
+			else {
+				out.append(line+"\n");
 			}
 			countLine++;
 
 		}
 		reader.close();
-		return fichier.toString().trim();
+		
+		return out.toString();
 	}
+	
+	
 
 	@Override
 	public void writeFile(String name, String contenu) throws IOException {
