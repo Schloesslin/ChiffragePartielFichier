@@ -48,6 +48,11 @@ public abstract class AbstractControler {
 		return this.model.writeTemp(file, start, stop, key);
 	}
 	
+	public String writeTemp2(String file, Key key) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+		this.control();
+		return this.model.writeTemp2(file, key);
+	}
+	
 	public String readWithKey(String file, Key key) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException{
 		this.control();
 		return this.model.readWithKey(file, key);

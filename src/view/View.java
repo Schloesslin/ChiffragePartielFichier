@@ -174,33 +174,45 @@ public class View extends JFrame implements Observer {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			
-			
 			String s = new String("");
-			ArrayList<Integer> blocks = controler.getBlocks(start.getText());
-			ArrayList<Integer> startBlock = new ArrayList<Integer>();
-			ArrayList<Integer> stopBlock = new ArrayList<Integer>();
-			
-			for (int i=0; i<blocks.size()-1; i+=2) {
-				startBlock.add(blocks.get(i));
-				stopBlock.add(blocks.get(i+1));
-			}
-			
-			try {
-				
-				s = controler.writeTemp(controler.getPath(), startBlock, stopBlock, controler.constructKey(cryptKey.getText(), "AES"));
 
-			} catch (InvalidKeyException | NumberFormatException | NoSuchAlgorithmException | NoSuchPaddingException
-					| IllegalBlockSizeException | BadPaddingException | IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}   
+			if (controler.getAllSelected()) {
+				try {
+					s = controler.writeTemp2(controler.getPath(), controler.constructKey(cryptKey.getText(), "AES"));
+				} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
+						| IllegalBlockSizeException | BadPaddingException | IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+			}
+			else {
+				ArrayList<Integer> blocks = controler.getBlocks(start.getText());
+				ArrayList<Integer> startBlock = new ArrayList<Integer>();
+				ArrayList<Integer> stopBlock = new ArrayList<Integer>();
+				
+				for (int i=0; i<blocks.size()-1; i+=2) {
+					startBlock.add(blocks.get(i));
+					stopBlock.add(blocks.get(i+1));
+				}
+				
+				try {
+					
+					s = controler.writeTemp(controler.getPath(), startBlock, stopBlock, controler.constructKey(cryptKey.getText(), "AES"));
+
+				} catch (InvalidKeyException | NumberFormatException | NoSuchAlgorithmException | NoSuchPaddingException
+						| IllegalBlockSizeException | BadPaddingException | IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}   
+			}
 			try {
 				controler.writeFile(name.getText(), s);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			
 			
 		}
 	}

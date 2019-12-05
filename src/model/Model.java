@@ -178,7 +178,21 @@ public class Model extends AbstractModel {
 		return out.toString();
 	}
 	
-	
+	public String writeTemp2(String file, Key key) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+		StringBuffer out = new StringBuffer("");
+		StringBuffer toCrypt = new StringBuffer("");
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		String line = new String("");
+		while ((line = reader.readLine()) != null) {
+			toCrypt.append(line+"\n");
+		}
+		reader.close();
+		out.append("Crypted Part\n");
+		out.append(this.cryptText(toCrypt.toString(), key).trim());
+		out.append("\nEnd Crypted Part\n");
+		
+		return out.toString();
+	}
 
 	@Override
 	public void writeFile(String name, String contenu) throws IOException {

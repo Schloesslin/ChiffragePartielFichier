@@ -20,7 +20,7 @@ public abstract class AbstractModel implements Observable {
 	public abstract String readWithKey(String file, Key key) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException;
 	public abstract String readWithouthKey(String file) throws IOException;
 	public abstract ArrayList<Integer> getBlocks(String blocks);
-
+	public abstract String writeTemp2(String file, Key key) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException;
 	
 	public abstract String getPath();
 	public abstract void setPath(String path);
