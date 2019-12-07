@@ -79,7 +79,7 @@ public class TestApplication {
 		controler.decryptFile("TestNameDecrypt", testContenuCrypted, "TestPass");
 		assertTrue("",controler.readAllFile("TestNameDecrypt").equals("TestContenu"));
 	}
-	*/
+	
 	@Test
 	public void testCryptText() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
 		
@@ -110,7 +110,7 @@ public class TestApplication {
 		
 		assertTrue("", controler.decryptText(textEncryptedBase64, key).equals("Test"));
 	}
-	
+	*/
 	@Test
 	public void testGetFolderPath() {
 		Model model = new Model();

@@ -2,6 +2,7 @@ package view;
 
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -32,15 +33,35 @@ public class View extends JFrame implements Observer {
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final String TITLE = "Cryptographie";
-	private static final Dimension WINDOW_DIMENSION = new Dimension(1200, 900);
+	private static final Dimension WINDOW_DIMENSION = new Dimension(1300, 900);
+	private static final Rectangle BOUNDS_CRYPTPAN = new Rectangle(10, 10,1220, 40);
+	private static final Rectangle BOUNDS_READPAN = new Rectangle(10, 110, 600, 40);
+	private static final Rectangle BOUNDS_TEXTAREA = new Rectangle(10, 220, 800, 500);
+	private static int ROWS_TEXTAREA = 30;
+	private static int COLUMNS_TEXTAREA = 60;
+	private static int DEFAUT_COLUMNS = 8;
+	private static int BLOCK_COLUMNS = 5;
 	private static final String EMPTY = "";
-
+	private static String CRYPT = new String("Crypt");
+	private static String READ = new String("Read");
+	private static String CRYPT_ALL = new String("Crypt All");
+	private static String CHOOSE = new String("Choose file ...");
+	private static String LABEL_BLOCK = new String("Crypt block(s)");
+	private static String LABEL_READ = new String("Read with key");
+	private static String LABEL_FILE = new String("the file");
+	private static String LABEL_OR = new String("or");
+	private static String LABEL_KEY = new String("with key");
+	private static String LABEL_WITH_NAME = new String("with name");
+	private static String LABEL_METHODE = new String("and methode");
+	private static String AES = new String("AES");
+	private static String DES = new String("DES");
+	
 	private AbstractControler controler;
 	private JPanel panelPrincipal = new JPanel();
-	private JButton crypt, chooseCrypt, chooseDecrypt, chooseRead, read;
-	private JTextField start, stop, cryptKey, decryptKey, readKey, filePathCrypt, filePathDecrypt, filePathRead, name;
-	private JCheckBox cryptAll;
-	private JLabel from, key, or, fileCrypt, fileRead, readLabel, withName;
+	private JButton crypt, chooseCrypt, chooseRead, read;
+	private JTextField block, cryptKey, readKey, filePathCrypt, filePathRead, name;
+	private JCheckBox cryptAll, aes, des;
+	private JLabel from, key, or, fileCrypt, fileRead, readLabel, withName, withMethode, infoRead, infoCrypt;
 	private JTextArea lecture;
 	private JScrollPane scrollbar;
 	
@@ -64,37 +85,43 @@ public class View extends JFrame implements Observer {
 		AllCheckBoxListener allCheckBoxListener = new AllCheckBoxListener();
 		ChooseFileListener chooseFileListener = new ChooseFileListener();
 		ReadButtonListener readButtonListener = new ReadButtonListener();
-		
+		DesCheckBoxListener desCheckBoxListener = new DesCheckBoxListener();
+		AesCheckBoxListener aesCheckBoxListener = new AesCheckBoxListener();
+
 		// Initialisation du panel de cryptage
 		JPanel cryptPan = new JPanel();
-		cryptPan.setBounds(10, 10,1020, 40);
+		cryptPan.setBounds(BOUNDS_CRYPTPAN);
 		this.cryptKey = new JTextField();
-		this.start = new JTextField();
-		this.stop = new JTextField();
-		this.cryptAll = new JCheckBox("Crypt All");
-		this.chooseCrypt = new JButton("Choose File ...");
-		this.from = new JLabel("Crypt block(s)");
-		this.key = new JLabel("with key");
-		this.or = new JLabel("or");
-		this.withName = new JLabel("with name");
+		this.block = new JTextField();
+		this.cryptAll = new JCheckBox(CRYPT_ALL);
+		this.chooseCrypt = new JButton(CHOOSE);
+		this.from = new JLabel(LABEL_BLOCK);
+		this.key = new JLabel(LABEL_KEY);
+		this.or = new JLabel(LABEL_OR);
+		this.withName = new JLabel(LABEL_WITH_NAME);
 		this.name = new JTextField();
-		this.name.setColumns(8);
+		this.name.setColumns(DEFAUT_COLUMNS);
 		this.cryptKey.setColumns(8);
-		this.start.setColumns(5);
-		this.stop.setColumns(5);
-		this.fileCrypt = new JLabel("the file");
+		this.block.setColumns(BLOCK_COLUMNS);
+		this.withMethode = new JLabel(LABEL_METHODE);
+		this.fileCrypt = new JLabel(LABEL_FILE);
 		this.filePathCrypt = new JTextField();
 		this.filePathCrypt.setEditable(false);
-		this.filePathCrypt.setColumns(8);
-		this.crypt = new JButton("Crypt");
+		this.filePathCrypt.setColumns(DEFAUT_COLUMNS);
+		this.crypt = new JButton(CRYPT);
+		this.aes = new JCheckBox(AES);
+		this.aes.setSelected(true);
+		this.des = new JCheckBox(DES);
 		this.chooseCrypt.addActionListener(chooseFileListener);
 		this.crypt.addActionListener(cryptButtonListener);
 		this.cryptAll.addActionListener(allCheckBoxListener);
-		
+		this.aes.addActionListener(aesCheckBoxListener);
+		this.des.addActionListener(desCheckBoxListener);
+
 		cryptPan.add(this.cryptAll);
 		cryptPan.add(this.or);
 		cryptPan.add(this.from);
-		cryptPan.add(this.start);
+		cryptPan.add(this.block);
 		cryptPan.add(this.key);
 		cryptPan.add(this.cryptKey);
 		cryptPan.add(this.fileCrypt);
@@ -102,21 +129,24 @@ public class View extends JFrame implements Observer {
 		cryptPan.add(this.chooseCrypt);
 		cryptPan.add(this.withName);
 		cryptPan.add(this.name);
+		cryptPan.add(this.withMethode);
+		cryptPan.add(this.aes);
+		cryptPan.add(this.des);
 		cryptPan.add(this.crypt);
 		this.panelPrincipal.add(cryptPan);
 
 		//Initialisation du panel de lecture
 		JPanel readPan = new JPanel();
-		readPan.setBounds(10, 160, 600, 40);
-		this.readLabel = new JLabel("Read with key");
+		readPan.setBounds(BOUNDS_READPAN);
+		this.readLabel = new JLabel(LABEL_READ);
 		this.readKey = new JTextField();
-		this.readKey.setColumns(8);
-		this.fileRead = new JLabel("the file");
+		this.readKey.setColumns(DEFAUT_COLUMNS);
 		this.filePathRead = new JTextField();
+		this.fileRead = new JLabel(LABEL_FILE);
 		this.filePathRead.setEditable(false);
-		this.filePathRead.setColumns(8);
-		this.chooseRead = new JButton("Choose file ...");
-		this.read = new JButton("Read");
+		this.filePathRead.setColumns(DEFAUT_COLUMNS);
+		this.chooseRead = new JButton(CHOOSE);
+		this.read = new JButton(READ);
 		this.chooseRead.addActionListener(chooseFileListener);
 		this.read.addActionListener(readButtonListener);
 		
@@ -129,17 +159,30 @@ public class View extends JFrame implements Observer {
 		this.panelPrincipal.add(readPan);
 
         JPanel lecturePan = new JPanel();
-        lecturePan.setBounds(10, 230, 800, 500);
+        lecturePan.setBounds(BOUNDS_TEXTAREA);
 		this.lecture = new JTextArea();
 		this.lecture.setEditable(false);
-		this.lecture.setRows(30);
-		this.lecture.setColumns(60);
+		this.lecture.setRows(ROWS_TEXTAREA);
+		this.lecture.setColumns(COLUMNS_TEXTAREA);
 		this.scrollbar = new JScrollPane(this.lecture);
         this.scrollbar.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); 
-        this.scrollbar.setBounds(10, 230, 800, 500);
+        this.scrollbar.setBounds(BOUNDS_TEXTAREA);
         
         lecturePan.add(this.scrollbar);
         this.panelPrincipal.add(lecturePan);
+        
+        JPanel infoCryptPan = new JPanel();
+        infoCryptPan.setBounds(0, 50, 100, 20);
+        this.infoCrypt  = new JLabel();
+        infoCryptPan.add(this.infoCrypt);
+        this.panelPrincipal.add(infoCryptPan);
+        
+        JPanel infoReadPan = new JPanel();
+        infoReadPan.setBounds(0, 150, 150, 20);
+        this.infoRead  = new JLabel();
+        infoReadPan.add(this.infoRead);
+        this.panelPrincipal.add(infoReadPan);
+        
 	}
 
 	public Frame getFrame() {
@@ -158,8 +201,6 @@ public class View extends JFrame implements Observer {
 				controler.setPath(chooser.getSelectedFile().getPath());
 				if (e.getSource() == chooseCrypt) {
 					filePathCrypt.setText(controler.getPath());
-				} else if (e.getSource() == chooseDecrypt) {
-					filePathDecrypt.setText(controler.getPath());
 				}
 				else {
 					filePathRead.setText(controler.getPath());
@@ -174,34 +215,74 @@ public class View extends JFrame implements Observer {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			
-			
-			String s = new String("");
-			ArrayList<Integer> blocks = controler.getBlocks(start.getText());
+			String methode = new String(EMPTY);
 			ArrayList<Integer> startBlock = new ArrayList<Integer>();
 			ArrayList<Integer> stopBlock = new ArrayList<Integer>();
-			
-			for (int i=0; i<blocks.size()-1; i+=2) {
-				startBlock.add(blocks.get(i));
-				stopBlock.add(blocks.get(i+1));
+			ArrayList<Integer> blocks = new ArrayList<Integer>();;
+			if(aes.isSelected()) {
+				methode = AES;
+			}
+			else {
+				methode = DES;
 			}
 			
-			try {
-				
-				s = controler.writeTemp(controler.getPath(), startBlock, stopBlock, controler.constructKey(cryptKey.getText(), "AES"));
+			if(filePathCrypt.getText().equals(EMPTY)) {
+				infoCrypt.setText("fichier vide");
+				System.out.println("fichier vide");
+			}
+			else if (cryptKey.getText().equals(EMPTY)) {
+				infoCrypt.setText("mdp vide");
+				System.out.println("mdp vide");
+			}
+			else if (name.getText().equals(EMPTY)) {
+				infoCrypt.setText("nom vide");
+				System.out.println("nom vide");
+			}
+			else if (!controler.getAllSelected() && block.getText().equals(EMPTY)) {
+				infoCrypt.setText("block vide");
+				System.out.println("tu veux pas tout crypter mais tu me dis pas quoi crypter");
+			}
+			else {
+				String s = new String(EMPTY);
 
-			} catch (InvalidKeyException | NumberFormatException | NoSuchAlgorithmException | NoSuchPaddingException
-					| IllegalBlockSizeException | BadPaddingException | IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}   
-			try {
-				controler.writeFile(name.getText(), s);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
+				if (controler.getAllSelected()) {
+					try {
+						s = controler.readAndCrypt(controler.getPath(), controler.constructKey(cryptKey.getText(), methode), methode);
+						infoCrypt.setText("crypted");
+					} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
+							| IllegalBlockSizeException | BadPaddingException | IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
+				}
+				else {
+					blocks = controler.getBlocks(block.getText());
+					
+					for (int i=0; i<blocks.size()-1; i+=2) {
+						startBlock.add(blocks.get(i));
+						stopBlock.add(blocks.get(i+1));
+					}
+					try {
+						
+						s = controler.readAndCryptParts(controler.getPath(), startBlock, stopBlock, controler.constructKey(cryptKey.getText(), methode), methode);
+
+					} catch (InvalidKeyException | NumberFormatException | NoSuchAlgorithmException | NoSuchPaddingException
+							| IllegalBlockSizeException | BadPaddingException | IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}   
+				}
+				try {
+					controler.writeFile(name.getText(), s);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				startBlock.clear();
+				stopBlock.clear();
+				blocks.clear();
+			}		
 		}
 	}
 
@@ -216,20 +297,57 @@ public class View extends JFrame implements Observer {
 		}
 	}
 
+	class AesCheckBoxListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			des.setSelected(false);
+			aes.setSelected(true);
+			}
+	}
+	
+	class DesCheckBoxListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			aes.setSelected(false);
+			des.setSelected(true);
+		}
+	}
+	
 	// Listener pour le bouton permettant de lire
 	class ReadButtonListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			String toShow = new String("");
+			String toShow = new String(EMPTY);
+			String methode = new String(EMPTY);
+			
 			try {
-				toShow = controler.readWithKey(controler.getPath(), controler.constructKey(readKey.getText(), "AES"));
+				if (controler.readFirstLine(controler.getPath()).contains(AES)) {
+					methode=AES;
+				}
+				else {
+					methode = DES;
+				}
+			} catch (IOException e3) {
+				// TODO Auto-generated catch block
+				e3.printStackTrace();
+			}
+			
+			try {
+				toShow = controler.readWithKey(controler.getPath(), controler.constructKey(readKey.getText(), methode));
+				infoRead.setText("Read with key");
 
 			} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
 					| BadPaddingException | IOException e2) {
 				// TODO Auto-generated catch block
 				//e2.printStackTrace();
+				infoRead.setText("Read without key");
+				System.out.println("pas de cle");
 				try {
 					toShow = controler.readWithouthKey(controler.getPath());
 				} catch (IOException e1) {
@@ -237,7 +355,6 @@ public class View extends JFrame implements Observer {
 					e1.printStackTrace();
 				}
 			}
-			
 			lecture.setText(toShow);
 		}
 	}
@@ -246,14 +363,12 @@ public class View extends JFrame implements Observer {
 	public void update(String whatToUpdate) {
 		// TODO Auto-generated method stub
 		if (whatToUpdate.equals("AllEmpty")) {
-			this.decryptKey.setText(EMPTY);
-			this.cryptKey.setText(EMPTY);
+			//this.cryptKey.setText(EMPTY);
 			this.filePathCrypt.setText(EMPTY);
-			this.start.setText(EMPTY);
-			this.stop.setText(EMPTY);
+			this.block.setText(EMPTY);
+			this.filePathRead.setText(EMPTY);
 		}
-		this.start.setEditable(!this.controler.getAllSelected());
-		this.stop.setEditable(!this.controler.getAllSelected());
+		this.block.setEditable(!this.controler.getAllSelected());
 
 	}
 }

@@ -41,14 +41,23 @@ public abstract class AbstractControler {
 		this.control();
 		return this.model.getFolderPath(filePath);
 	}
-
 	
-	public String writeTemp(String file, ArrayList<Integer> start, ArrayList<Integer> stop, Key key) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+	public String readFirstLine(String file) throws IOException {
 		this.control();
-		return this.model.writeTemp(file, start, stop, key);
+		return this.model.readFirstLine(file);
 	}
 	
-	public String readWithKey(String file, Key key) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException{
+	public String readAndCryptParts(String file, ArrayList<Integer> start, ArrayList<Integer> stop, Key key, String methode) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+		this.control();
+		return this.model.readAndCryptParts(file, start, stop, key, methode);
+	}
+	
+	public String readAndCrypt(String file, Key key, String methode) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+		this.control();
+		return this.model.readAndCrypt(file, key, methode);
+	}
+	
+	public String readWithKey(String file, Key key ) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException{
 		this.control();
 		return this.model.readWithKey(file, key);
 	}
@@ -77,25 +86,25 @@ public abstract class AbstractControler {
 		return this.model.constructKey(passwoard, methode);
 	}
 
-	public String cryptText(String contenu, Key key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
+	public String cryptText(String contenu, Key key, String methode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
 		this.control();
-		return this.model.cryptText(contenu, key);
+		return this.model.cryptText(contenu, key, methode);
 	}
 
-	public String decryptText(String contenu, Key key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
+	public String decryptText(String contenu, Key key, String methode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
 		this.control();
-		return this.model.decryptText(contenu, key);
+		return this.model.decryptText(contenu, key, methode);
 	}
 
-	public void cryptFile(String nameFile, String contenu, String cryptKey) throws IOException, NoSuchAlgorithmException,
+	public void cryptFile(String nameFile, String contenu, String cryptKey, String methode) throws IOException, NoSuchAlgorithmException,
 			NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-		this.model.cryptFile(nameFile, contenu, cryptKey);
+		this.model.cryptFile(nameFile, contenu, cryptKey, methode);
 		this.control();
 	}
 
-	public void decryptFile(String nameFile, String contenu, String decryptKey) throws IOException, NoSuchAlgorithmException,
+	public void decryptFile(String nameFile, String contenu, String decryptKey, String methode) throws IOException, NoSuchAlgorithmException,
 			NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-		this.model.decryptFile(nameFile, contenu, decryptKey);
+		this.model.decryptFile(nameFile, contenu, decryptKey, methode);
 		this.control();
 	}
 

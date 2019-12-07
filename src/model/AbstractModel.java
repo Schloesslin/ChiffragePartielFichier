@@ -16,11 +16,12 @@ public abstract class AbstractModel implements Observable {
 	protected boolean allSelected;
 	private ArrayList<Observer> listObserver = new ArrayList<Observer>();
 
-	public abstract String writeTemp(String file,  ArrayList<Integer> start, ArrayList<Integer> stop, Key key) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException;
+	public abstract String readAndCryptParts(String file,  ArrayList<Integer> start, ArrayList<Integer> stop, Key key, String methode) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException;
 	public abstract String readWithKey(String file, Key key) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException;
 	public abstract String readWithouthKey(String file) throws IOException;
 	public abstract ArrayList<Integer> getBlocks(String blocks);
-
+	public abstract String readAndCrypt(String file, Key key, String methode) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException;
+	public abstract String readFirstLine(String file) throws IOException;
 	
 	public abstract String getPath();
 	public abstract void setPath(String path);
@@ -29,10 +30,10 @@ public abstract class AbstractModel implements Observable {
 	public abstract String getFolderPath(String filePath);
 	public abstract void writeFile(String name, String contenu) throws IOException;
 	public abstract Key constructKey(String passwoard, String methode);
-	public abstract String cryptText(String contenu, Key key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException;
-	public abstract String decryptText(String contenu, Key key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException;
-	public abstract void cryptFile(String nameFile, String contenu, String cryptKey) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException;
-	public abstract void decryptFile(String nameFile, String contenu, String decryptKey) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException;
+	public abstract String cryptText(String contenu, Key key, String methode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException;
+	public abstract String decryptText(String contenu, Key key, String methode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException;
+	public abstract void cryptFile(String nameFile, String contenu, String cryptKey, String methode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException;
+	public abstract void decryptFile(String nameFile, String contenu, String decryptKey, String methode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException;
 
 	@Override
 	public void addObserver(Observer obs) {
