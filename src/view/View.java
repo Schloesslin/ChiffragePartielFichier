@@ -37,6 +37,9 @@ public class View extends JFrame implements Observer {
 	private static final Rectangle BOUNDS_CRYPTPAN = new Rectangle(10, 10,1220, 40);
 	private static final Rectangle BOUNDS_READPAN = new Rectangle(10, 110, 600, 40);
 	private static final Rectangle BOUNDS_TEXTAREA = new Rectangle(10, 220, 800, 500);
+	private static final Rectangle BOUNDS_INFOCRYPT = new Rectangle(0, 50, 310, 20);
+	private static final Rectangle BOUNDS_INFOREAD = new Rectangle(0, 150, 150, 20);
+	
 	private static int ROWS_TEXTAREA = 30;
 	private static int COLUMNS_TEXTAREA = 60;
 	private static int DEFAUT_COLUMNS = 8;
@@ -55,6 +58,15 @@ public class View extends JFrame implements Observer {
 	private static String LABEL_METHODE = new String("and methode");
 	private static String AES = new String("AES");
 	private static String DES = new String("DES");
+	private static String MDP_EMPTY = new String("Veuillez renseigner un mot de passe");
+	private static String FILE_EMPTY = new String("Veuillez renseigner un fichier à crypter");
+	private static String NAME_EMPTY = new String("Veuillez renseigner un nom");
+	private static String BLOCK_EMPTY = new String("Veuillez renseigner un block ou cochez crypt all");
+	private static String READ_WITH = new String("Lecture avec cle");
+	private static String READ_WITHOUT = new String("Lecture sans cle");
+	private static String CRYPTED = new String("Crypted");
+	private static String ALL_READ_EMPTY = new String("AllReadEmpty");
+	private static String ALL_CRYPT_EMPTY = new String("AllCryptEmpty");
 	
 	private AbstractControler controler;
 	private JPanel panelPrincipal = new JPanel();
@@ -172,13 +184,13 @@ public class View extends JFrame implements Observer {
         this.panelPrincipal.add(lecturePan);
         
         JPanel infoCryptPan = new JPanel();
-        infoCryptPan.setBounds(0, 50, 100, 20);
+        infoCryptPan.setBounds(BOUNDS_INFOCRYPT);
         this.infoCrypt  = new JLabel();
         infoCryptPan.add(this.infoCrypt);
         this.panelPrincipal.add(infoCryptPan);
         
         JPanel infoReadPan = new JPanel();
-        infoReadPan.setBounds(0, 150, 150, 20);
+        infoReadPan.setBounds(BOUNDS_INFOREAD);
         this.infoRead  = new JLabel();
         infoReadPan.add(this.infoRead);
         this.panelPrincipal.add(infoReadPan);
@@ -227,20 +239,16 @@ public class View extends JFrame implements Observer {
 			}
 			
 			if(filePathCrypt.getText().equals(EMPTY)) {
-				infoCrypt.setText("fichier vide");
-				System.out.println("fichier vide");
+				infoCrypt.setText(FILE_EMPTY);
 			}
 			else if (cryptKey.getText().equals(EMPTY)) {
-				infoCrypt.setText("mdp vide");
-				System.out.println("mdp vide");
+				infoCrypt.setText(MDP_EMPTY);
 			}
 			else if (name.getText().equals(EMPTY)) {
-				infoCrypt.setText("nom vide");
-				System.out.println("nom vide");
+				infoCrypt.setText(NAME_EMPTY);
 			}
 			else if (!controler.getAllSelected() && block.getText().equals(EMPTY)) {
-				infoCrypt.setText("block vide");
-				System.out.println("tu veux pas tout crypter mais tu me dis pas quoi crypter");
+				infoCrypt.setText(BLOCK_EMPTY);
 			}
 			else {
 				String s = new String(EMPTY);
@@ -248,7 +256,7 @@ public class View extends JFrame implements Observer {
 				if (controler.getAllSelected()) {
 					try {
 						s = controler.readAndCrypt(controler.getPath(), controler.constructKey(cryptKey.getText(), methode), methode);
-						infoCrypt.setText("crypted");
+						infoCrypt.setText(CRYPTED);
 					} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
 							| IllegalBlockSizeException | BadPaddingException | IOException e1) {
 						// TODO Auto-generated catch block
@@ -266,7 +274,7 @@ public class View extends JFrame implements Observer {
 					try {
 						
 						s = controler.readAndCryptParts(controler.getPath(), startBlock, stopBlock, controler.constructKey(cryptKey.getText(), methode), methode);
-
+						infoCrypt.setText(CRYPTED);
 					} catch (InvalidKeyException | NumberFormatException | NoSuchAlgorithmException | NoSuchPaddingException
 							| IllegalBlockSizeException | BadPaddingException | IOException e1) {
 						// TODO Auto-generated catch block
@@ -340,16 +348,17 @@ public class View extends JFrame implements Observer {
 			
 			try {
 				toShow = controler.readWithKey(controler.getPath(), controler.constructKey(readKey.getText(), methode));
-				infoRead.setText("Read with key");
+				infoRead.setText(READ_WITH);
 
 			} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
 					| BadPaddingException | IOException e2) {
 				// TODO Auto-generated catch block
 				//e2.printStackTrace();
-				infoRead.setText("Read without key");
-				System.out.println("pas de cle");
+
 				try {
 					toShow = controler.readWithouthKey(controler.getPath());
+					infoRead.setText(READ_WITHOUT);
+
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -362,10 +371,15 @@ public class View extends JFrame implements Observer {
 	@Override
 	public void update(String whatToUpdate) {
 		// TODO Auto-generated method stub
-		if (whatToUpdate.equals("AllEmpty")) {
-			//this.cryptKey.setText(EMPTY);
+		if (whatToUpdate.equals(ALL_CRYPT_EMPTY)) {
+			this.cryptKey.setText(EMPTY);
 			this.filePathCrypt.setText(EMPTY);
 			this.block.setText(EMPTY);
+			this.filePathRead.setText(EMPTY);
+			this.name.setText(EMPTY);
+		}
+		else if (whatToUpdate.equals(ALL_READ_EMPTY)) {
+			this.readKey.setText(EMPTY);
 			this.filePathRead.setText(EMPTY);
 		}
 		this.block.setEditable(!this.controler.getAllSelected());
