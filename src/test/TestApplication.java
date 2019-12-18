@@ -17,6 +17,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.swing.JFrame;
 
 import org.junit.Test;
 
@@ -356,97 +357,24 @@ public class TestApplication {
 		
 	}
 	
-	/*
 	@Test
-	public void testReadFile() throws IOException {
-		Model model = new Model();
-		Controler controler = new Controler(model);
-		String contenu = new String("");
-		String contenuToRead = new String("");
-		for (int i=1; i<51; i++) {
-			contenu+=Integer.toString(i)+"\n";
-		}
-		contenu = contenu.trim();
-		
-		for (int i=10; i<31; i++) {
-			contenuToRead+=Integer.toString(i)+"\n";
-		}
-		contenuToRead = contenuToRead.trim();
-		controler.writeFile("testFile2", contenu);
-		assertTrue("", controler.readFile("testFile2", 10, 30).equals(contenuToRead));
+	public void testGetFrame() {
+		AbstractModel model = new Model();
+		AbstractControler controler = new Controler(model);
+		View view = new View(controler);
+		model.addObserver(view);
+		JFrame f = (JFrame) view.getFrame();
+		assertTrue(f.getTitle().equals("Cryptographie"));
 	}
 	
 	@Test
-	public void testCryptFile() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
-		Model model = new Model();
-		Controler controler = new Controler(model);
-		controler.cryptFile("TestName", "TestContenu", "TestPass");
-		String testContenuCrypted = model.cryptText("TestContenu", model.constructKey("TestPass", "AES"));
-		assertTrue("", controler.readAllFile("TestName").equals(testContenuCrypted));
+	public void testGetInfo() {
+		AbstractModel model = new Model();
+		AbstractControler controler = new Controler(model);
+		View view = new View(controler);
+		model.addObserver(view);
+		assertTrue(view.getInfo().equals("Veuillez renseigner un mot de passe"));
 	}
 	
-	@Test
-	public void testDecryptFile() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
-		Model model = new Model();
-		Controler controler = new Controler(model);
-		controler.cryptFile("TestName", "TestContenu", "TestPass");
-		String testContenuCrypted = controler.readAllFile("TestName");
-		controler.decryptFile("TestNameDecrypt", testContenuCrypted, "TestPass");
-		assertTrue("",controler.readAllFile("TestNameDecrypt").equals("TestContenu"));
-	}
-	
-	@Test
-	public void testCryptText() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-		
-		Model model = new Model();
-		Controler controler = new Controler(model);
-		Key key = controler.constructKey("Test", "AES");
-		String contenuTest = new String("Test");
-		Cipher cipher = Cipher.getInstance("AES");
-		cipher.init(Cipher.ENCRYPT_MODE, key);
-		byte[] byteEncrypted = cipher.doFinal(contenuTest.getBytes());
-		byte[] byteEncryptedBase64 = Base64.getEncoder().encode(byteEncrypted);
-		String textEncryptedBase64 = new String(byteEncryptedBase64);
-		assertTrue("", textEncryptedBase64.equals(controler.cryptText(contenuTest, key)));
-	}
-	
-	@Test
-	public void testDecryptText() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-		
-		Model model = new Model();
-		Controler controler = new Controler(model);
-		Key key = controler.constructKey("Test", "AES");
-		String contenuTest = new String("Test");
-		Cipher cipher = Cipher.getInstance("AES");
-		cipher.init(Cipher.ENCRYPT_MODE, key);
-		byte[] byteEncrypted = cipher.doFinal(contenuTest.getBytes());
-		byte[] byteEncryptedBase64 = Base64.getEncoder().encode(byteEncrypted);
-		String textEncryptedBase64 = new String(byteEncryptedBase64);
-		
-		assertTrue("", controler.decryptText(textEncryptedBase64, key).equals("Test"));
-	}
-	*/
-	
-	/*
-	@Test
-	public void testReadAllFile() throws IOException {
-		Model model = new Model();
-		Controler controler = new Controler(model);
-		String contenu = new String("");
-		for (int i=0; i<50; i++) {
-			contenu+=Integer.toString(i)+"\n";
-		}
-		contenu = contenu.trim();
-		controler.writeFile("testFile1", contenu);
-		assertTrue("", controler.readAllFile("testFile1").equals(contenu));
-	}
-	
-	
-	@Test(expected = IOException.class)
-	public void testReadAllFileException() throws IOException {
-		Model model = new Model();
-		Controler controler = new Controler(model);
-		controler.readAllFile("");
-	}*/
 	
 }
