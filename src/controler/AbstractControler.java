@@ -1,58 +1,22 @@
 package controler;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
 
 import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
-
 import model.AbstractModel;
 
 public abstract class AbstractControler {
 
 	protected AbstractModel model;
-
+	
 	public AbstractControler(AbstractModel model) {
 		this.model = model;
-	}
-
-	public String readFile(String file, int start, int stop) {
-		// TODO Auto-generated method stub
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(file));
-			String ligne;
-			StringBuffer fichier = new StringBuffer();
-			int countLine = 1;
-			while ((ligne = reader.readLine()) != null) {
-				if (countLine <= stop && countLine >= start) {
-					fichier.append(ligne);
-					fichier.append("\n");
-				}
-				countLine++;
-
-			}
-			reader.close();
-			this.control();
-			return fichier.toString();
-		} catch (IOException e) {
-			return e.getMessage();
-		}
-	}
-	public void setPath(String path) {
-		this.model.setPath(path);
-		this.control();
 	}
 
 	public String getPath() {
@@ -60,69 +24,72 @@ public abstract class AbstractControler {
 		return this.model.getPath();
 	}
 	
+	public void setPath(String path) {
+		this.model.setPath(path);
+		this.control();
+	}
+
+	public boolean getAllSelected() {
+		return this.model.getAllSelected();
+	}
+	
+	public void toggleAllSelected() {
+		this.model.toggleAllSelected();
+	}
+
 	public String getFolderPath(String filePath) {
-		String path[] = filePath.split("/");
-		List<String> tmp = Arrays.asList(path);
-		ArrayList<String> folders = new ArrayList<String>(tmp);
-		String folderPath = new String();
-		for (int i = 0; i < folders.size() - 1; i++) {
-			folderPath += folders.get(i) + "/";
-		}
 		this.control();
-		return folderPath;
+		return this.model.getFolderPath(filePath);
+	}
+	
+	public void writeFile(String name, String contenu) throws IOException{
+		this.control();
+		this.model.writeFile(name, contenu);
 	}
 
-	public void writeCryptedFile(String file, String contenu, String cryptKey) throws IOException, NoSuchAlgorithmException,
-			NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-		System.out.println(file);
-		byte[] b = new byte[32];
-		for (int i = 0; i < 32; i++) {
-			if (cryptKey.getBytes().length > i) {
-				b[i] = cryptKey.getBytes()[i];
-			} else {
-				b[i] = 0;
-			}
-		}
-		Key key = new SecretKeySpec(b, "AES");
-		Cipher desCipher;
-		desCipher = Cipher.getInstance("AES");
-		desCipher.init(Cipher.ENCRYPT_MODE, key);
-		byte[] textEncrypted = desCipher.doFinal(contenu.getBytes());
-
-		byte[] tt = Base64.getEncoder().encode(textEncrypted);
-		String s = new String(tt);
-		FileWriter fichierToWrite = new FileWriter(model.getPath() + file + "Crypted" + ".txt");
-		fichierToWrite.write(s);
-		FileWriter fichierToWrite1 = new FileWriter(model.getPath() + file + ".txt");
-		fichierToWrite1.write(contenu);
-		fichierToWrite.close();
-		fichierToWrite1.close();
+	public Key constructKey(String passwoard, String methode) {
 		this.control();
+		return this.model.constructKey(passwoard, methode);
+	}
+	
+	public String cryptText(String contenu, Key key, String methode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
+		this.control();
+		return this.model.cryptText(contenu, key, methode);
 	}
 
-	public void writeDecryptedFile(String file, String contenu, String decryptKey) throws NoSuchAlgorithmException, NoSuchPaddingException,
-			InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
-		byte[] b = new byte[32];
-		for (int i = 0; i < 32; i++) {
-			if (decryptKey.getBytes().length > i) {
-				b[i] = decryptKey.getBytes()[i];
-			} else {
-				b[i] = 0;
-			}
-		}
-		Key key = new SecretKeySpec(b, "AES");
-		Cipher desCipher;
-		byte[] text = Base64.getDecoder().decode(contenu.trim());
-		desCipher = Cipher.getInstance("AES");
-		desCipher.init(Cipher.DECRYPT_MODE, key);
-
-		byte[] textDecrypted = desCipher.doFinal(text);
-
-		String s = new String(textDecrypted);
-		FileWriter fichierToWrite2 = new FileWriter(model.getPath() + file + ".txt");
-		fichierToWrite2.write(s);
-		fichierToWrite2.close();
+	public String decryptText(String contenu, Key key, String methode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
 		this.control();
+		return this.model.decryptText(contenu, key, methode);
+	}
+	
+	public ArrayList<Integer> getBlocks(String blocks){
+		this.control();
+		return this.model.getBlocks(blocks);
+	}
+	
+	public String readAndCrypt(String file, Key key, String methode) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+		this.control();
+		return this.model.readAndCrypt(file, key, methode);
+	}
+	
+	public String readAndCryptParts(String file, ArrayList<Integer> start, ArrayList<Integer> stop, Key key, String methode) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+		this.control();
+		return this.model.readAndCryptParts(file, start, stop, key, methode);
+	}
+	
+	public String readFirstLine(String file) throws IOException {
+		this.control();
+		return this.model.readFirstLine(file);
+	}
+	
+	public String readWithKey(String file, Key key ) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException{
+		this.control();
+		return this.model.readWithKey(file, key);
+	}
+
+	public String readWithouthKey(String file) throws IOException {
+		this.control();
+		return this.model.readWithouthKey(file);
 	}
 
 	// Méthode de contrôle
