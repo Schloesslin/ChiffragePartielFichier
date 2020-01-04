@@ -42,7 +42,7 @@ public class View extends JFrame implements Observer {
 	
 	private static final String TITLE = "Cryptographie";
 	private static int ROWS_TEXTAREA = 30;
-	private static int COLUMNS_TEXTAREA = 55;
+	private static int COLUMNS_TEXTAREA = 40;
 	private static int DEFAUT_COLUMNS = 8;
 	private static final String EMPTY = "";
 	private static String CRYPT = new String("Crypt file ...");
@@ -274,7 +274,7 @@ public class View extends JFrame implements Observer {
 
 		this.previewPan = new JPanel();
 		this.previewPan.setBackground(Color.WHITE);
-		this.previewPan.setPreferredSize(new Dimension(800, 850));
+		this.previewPan.setPreferredSize(new Dimension(600, 650));
 		this.previewPan.setLayout(new GridBagLayout());
         Border borderLine3 = BorderFactory.createLineBorder(Color.BLACK,5,true);
         Border border3 = BorderFactory.createTitledBorder(borderLine3, PREVIEW, TitledBorder.CENTER,TitledBorder.TOP, new Font(ARIAL, Font.PLAIN , 26), Color.black);
@@ -283,7 +283,7 @@ public class View extends JFrame implements Observer {
         this.cell9 = new JPanel();
         this.cell9.setLayout(new BorderLayout());
         this.cell9.setBackground(Color.WHITE);
-        this.cell9.setPreferredSize(new Dimension(700, 800));
+        this.cell9.setPreferredSize(new Dimension(500, 600));
         
 		this.lecture = new JTextArea();
 		this.lecture.setEditable(false);
