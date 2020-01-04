@@ -142,6 +142,7 @@ public class View extends JFrame implements Observer {
         
         this.cryptAll = new JCheckBox(CRYPT_ALL);
 		this.cryptAll.setFont(FONT);
+		this.cryptAll.setBackground(Color.WHITE);
 		this.from = new JLabel(LABEL_BLOCK);
 		this.from.setFont(FONT);
 		this.block = new JTextField();
@@ -153,8 +154,10 @@ public class View extends JFrame implements Observer {
 		this.aes = new JCheckBox(AES);
 		this.aes.setFont(FONT);
 		this.aes.setSelected(true);
+		this.aes.setBackground(Color.WHITE);
 		this.des = new JCheckBox(DES);
 		this.des.setFont(FONT);
+		this.des.setBackground(Color.WHITE);
 		this.withName = new JLabel(LABEL_WITH_NAME);
 		this.withName.setFont(FONT);
 		this.name = new JTextField();
