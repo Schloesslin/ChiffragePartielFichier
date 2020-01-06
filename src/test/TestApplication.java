@@ -373,7 +373,7 @@ public class TestApplication {
 		AbstractControler controler = new Controler(model);
 		View view = new View(controler);
 		model.addObserver(view);
-		assertTrue(view.getInfo().equals("Veuillez renseigner un mot de passe"));
+		assertTrue(view.getInfo().equals("Please enter a password"));
 	}
 	
 	

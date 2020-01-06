@@ -84,14 +84,6 @@ public class Model extends AbstractModel {
 		return folderPath;
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-
 	@Override
 	public void writeFile(String name, String contenu) throws IOException {
 
@@ -101,8 +93,6 @@ public class Model extends AbstractModel {
 		this.notifyObserver(CRYPT_CLICK);
 
 	}
-	
-	
 	
 	@Override
 	public Key constructKey(String passwoard, String methode) {
@@ -159,9 +149,7 @@ public class Model extends AbstractModel {
 		String textDecrypted = new String(byteDecrypted);
 		this.notifyObserver(EMPTY);
 
-		return textDecrypted;
-		
-
+		return textDecrypted;	
 	}
 	
 	@Override
