@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Base64;
 
@@ -82,7 +83,7 @@ public class TestApplication {
 	}
 	
 	@Test
-	public void testConstructKeyAES() {
+	public void testConstructKeyAES() throws NoSuchAlgorithmException, InvalidKeySpecException {
 		Model model = new Model();
 		Controler controler = new Controler(model);
 		byte[] bytePassTest = new byte[32];
@@ -97,7 +98,7 @@ public class TestApplication {
 	}
 	
 	@Test
-	public void testConstructKeyDES() {
+	public void testConstructKeyDES() throws NoSuchAlgorithmException, InvalidKeySpecException {
 		Model model = new Model();
 		Controler controler = new Controler(model);
 		byte[] bytePassTest = new byte[DESKeySpec.DES_KEY_LEN];
@@ -112,11 +113,11 @@ public class TestApplication {
 	}
 	
 	@Test
-	public void testCryptText() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+	public void testCryptText() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException {
 		
 		Model model = new Model();
 		Controler controler = new Controler(model);
-		Key key = controler.constructKey("Test", "AES");
+		SecretKeySpec key = controler.constructKey("Test", "AES");
 		String contenuTest = new String("Test");
 		Cipher cipher = Cipher.getInstance("AES");
 		cipher.init(Cipher.ENCRYPT_MODE, key);
@@ -127,11 +128,11 @@ public class TestApplication {
 	}
 	
 	@Test
-	public void testDecryptText() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+	public void testDecryptText() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException {
 		
 		Model model = new Model();
 		Controler controler = new Controler(model);
-		Key key = controler.constructKey("Test", "AES");
+		SecretKeySpec key = controler.constructKey("Test", "AES");
 		String contenuTest = new String("Test");
 		Cipher cipher = Cipher.getInstance("AES");
 		cipher.init(Cipher.ENCRYPT_MODE, key);
@@ -171,7 +172,7 @@ public class TestApplication {
 	}
 	
 	@Test
-	public void testReadAndCrypt() throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+	public void testReadAndCrypt() throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException {
 		
 		Model model = new Model();
 		Controler controler = new Controler(model);
@@ -189,7 +190,7 @@ public class TestApplication {
 		BufferedReader reader = new BufferedReader(new FileReader(controler.getFolderPath(controler.getPath())+"test.txt"));
 		String line = new String("");
 		out.append("AES encryption\n");
-		Key key = controler.constructKey("TestPass", "AES");
+		SecretKeySpec key = controler.constructKey("TestPass", "AES");
 		while ((line = reader.readLine()) != null) {
 			toCrypt.append(line + "\n");
 		}
@@ -202,7 +203,7 @@ public class TestApplication {
 	}
 	
 	@Test
-	public void testReadAndCryptPart() throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+	public void testReadAndCryptPart() throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException {
 		
 		Model model = new Model();
 		Controler controler = new Controler(model);
@@ -226,7 +227,7 @@ public class TestApplication {
 		start.add(4);
 		stop.add(10);
 		out.append("AES encryption\n");
-		Key key = controler.constructKey("TestPass", "AES");
+		SecretKeySpec key = controler.constructKey("TestPass", "AES");
 		while ((line = reader.readLine()) != null) {
 			if (start.contains(countLine)) {
 				out.append(CRYPT_PART + JUMP_LINE);
@@ -257,7 +258,7 @@ public class TestApplication {
 	}
 	
 	@Test
-	public void testReadWithKeyAES() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
+	public void testReadWithKeyAES() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException, InvalidKeySpecException {
 		Model model = new Model();
 		Controler controler = new Controler(model);
 		
@@ -269,7 +270,7 @@ public class TestApplication {
 		
 		controler.writeFile("test3", contenu);
 		
-		Key key = controler.constructKey("TestPass", "AES");
+		SecretKeySpec key = controler.constructKey("TestPass", "AES");
 		String s = controler.readAndCrypt(controler.getFolderPath(controler.getPath())+"test3.txt", key, "AES");
 		controler.writeFile("test4", s);
 				
@@ -278,7 +279,7 @@ public class TestApplication {
 	}
 	
 	@Test
-	public void testReadWithKeyDES() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
+	public void testReadWithKeyDES() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException, InvalidKeySpecException {
 		Model model = new Model();
 		Controler controler = new Controler(model);
 		
@@ -290,7 +291,7 @@ public class TestApplication {
 		
 		controler.writeFile("test7", contenu);
 		
-		Key key = controler.constructKey("TestPass", "DES");
+		SecretKeySpec key = controler.constructKey("TestPass", "DES");
 		String s = controler.readAndCrypt(controler.getFolderPath(controler.getPath())+"test7.txt", key, "DES");
 		controler.writeFile("test8", s);
 				
@@ -299,7 +300,7 @@ public class TestApplication {
 	}
 	
 	@Test
-	public void testReadWithKey() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
+	public void testReadWithKey() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException, InvalidKeySpecException {
 		Model model = new Model();
 		Controler controler = new Controler(model);
 		
@@ -314,7 +315,7 @@ public class TestApplication {
 		ArrayList<Integer> stop = new ArrayList<Integer>();
 		start.add(4);
 		stop.add(10);
-		Key key = controler.constructKey("TestPass", "DES");
+		SecretKeySpec key = controler.constructKey("TestPass", "DES");
 		String s = controler.readAndCryptParts(controler.getFolderPath(controler.getPath())+"test9.txt",start, stop, key, "DES");
 		controler.writeFile("test10", s);
 				
@@ -323,7 +324,7 @@ public class TestApplication {
 	}
 	
 	@Test
-	public void testReadWithoutKey() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
+	public void testReadWithoutKey() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException, InvalidKeySpecException {
 		Model model = new Model();
 		Controler controler = new Controler(model);
 		
@@ -347,7 +348,7 @@ public class TestApplication {
 		ArrayList<Integer> stop = new ArrayList<Integer>();
 		start.add(4);
 		stop.add(10);
-		Key key = controler.constructKey("TestPass", "AES");
+		SecretKeySpec key = controler.constructKey("TestPass", "AES");
 		String s = controler.readAndCryptParts(controler.getFolderPath(controler.getPath())+"test5.txt",start,stop, key, "AES");
 		controler.writeFile("test6", s);
 				

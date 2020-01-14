@@ -5,19 +5,23 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.DESKeySpec;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 public class Model extends AbstractModel {
@@ -29,13 +33,15 @@ public class Model extends AbstractModel {
 	private static String SPACE = new String(" ");
 	private static String EXTEND_TXT = new String(".txt");
 	private static String SLASH = new String("/");
+	private static String AES_WITH_OPTION = new String("AES/CBC/PKCS5PADDING");
 	private static String AES = new String("AES");
+	private static String DES_WITH_OPTION = new String("DES/CBC/PKCS5PADDING");
 	private static String DES = new String("DES");
 	private static String ENCRYPTION = new String("encryption");
 	private static String SEPARATOR = new String("[- ]");
 	private static String READ_CLICK = new String("ReadClick");
 	private static String CRYPT_CLICK = new String("CryptClick");
-	
+
 	public Model() {
 		this.allSelected = false;
 		File file = new File(EMPTY);
@@ -56,13 +62,13 @@ public class Model extends AbstractModel {
 		this.notifyObserver(EMPTY);
 
 	}
-	
+
 	@Override
 	public boolean getAllSelected() {
 		// TODO Auto-generated method stub
 		return this.allSelected;
 	}
-	
+
 	@Override
 	public void toggleAllSelected() {
 		// TODO Auto-generated method stub
@@ -83,7 +89,7 @@ public class Model extends AbstractModel {
 
 		return folderPath;
 	}
-	
+
 	@Override
 	public void writeFile(String name, String contenu) throws IOException {
 
@@ -91,83 +97,104 @@ public class Model extends AbstractModel {
 		writer.write(contenu.trim());
 		writer.close();
 		this.notifyObserver(CRYPT_CLICK);
-
 	}
-	
-	@Override
-	public Key constructKey(String passwoard, String methode) {
-		byte[] byteKey;
-		if (methode.contains(AES)) {
 
-			byteKey = new byte[32];
-			for (int i = 0; i < 32; i++) {
-				if (i < passwoard.getBytes().length) {
-					byteKey[i] = passwoard.getBytes()[i];
-				} else {
-					byteKey[i] = 0;
-				}
-			}
+	@Override
+	public SecretKeySpec constructKey(String passwoard, String methode) throws NoSuchAlgorithmException, InvalidKeySpecException {
+		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+		KeySpec spec;
+		if (methode.equals(AES)) {
+	        spec = new PBEKeySpec(passwoard.toCharArray(), "ssshhhhhhhhhhh!!!!".getBytes(), 65536, 256);
 		}
 		else {
-			byteKey = new byte[DESKeySpec.DES_KEY_LEN];
-			for (int i = 0; i < DESKeySpec.DES_KEY_LEN; i++) {
-				if (i < passwoard.getBytes().length) {
-					byteKey[i] = passwoard.getBytes()[i];
-				} else {
-					byteKey[i] = 0;
-				}
-			}
+			spec = new PBEKeySpec(passwoard.toCharArray(), "ssshhhhhhhhhhh!!!!".getBytes(), 65536, 64);
 		}
 		
-		Key key = new SecretKeySpec(byteKey, methode);
-		this.notifyObserver(EMPTY);
-		return key;
-	}
-
-	@Override
-	public String cryptText(String contenu, Key key, String methode) throws NoSuchAlgorithmException, NoSuchPaddingException,
-			InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-
-		Cipher cipher = Cipher.getInstance(methode);
-		cipher.init(Cipher.ENCRYPT_MODE, key);
-		byte[] byteEncrypted = cipher.doFinal(contenu.getBytes());
-		byte[] byteEncryptedBase64 = Base64.getEncoder().encode(byteEncrypted);
-		String textEncryptedBase64 = new String(byteEncryptedBase64);
-
-		this.notifyObserver(EMPTY);
-
-		return textEncryptedBase64;
-	}
-
-	@Override
-	public String decryptText(String contenu, Key key, String methode) throws NoSuchAlgorithmException, NoSuchPaddingException,
-			InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-		Cipher cipher = Cipher.getInstance(methode);
-		cipher.init(Cipher.DECRYPT_MODE, key);
-		byte[] text = Base64.getDecoder().decode(contenu.trim());
-		byte[] byteDecrypted = cipher.doFinal(text);
-		String textDecrypted = new String(byteDecrypted);
-		this.notifyObserver(EMPTY);
-
-		return textDecrypted;	
+        SecretKey tmp;
+        tmp = factory.generateSecret(spec);
+		SecretKeySpec secretKey = new SecretKeySpec(tmp.getEncoded(), methode);
+		return secretKey;
 	}
 	
 	@Override
-	public ArrayList<Integer> getBlocks(String blocks){
+	public String cryptText(String contenu, SecretKeySpec key, String methode) throws NoSuchAlgorithmException,
+			NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+		
+		IvParameterSpec ivspec;
+		if (methode.contentEquals(AES_WITH_OPTION)) {
+			byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+			ivspec = new IvParameterSpec(iv);
+		}
+		else {
+			byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0 };
+			ivspec = new IvParameterSpec(iv);
+		}
+		
+		try {
+	        Cipher cipher = Cipher.getInstance(methode);
+			cipher.init(Cipher.ENCRYPT_MODE, key, ivspec);
+			byte[] byteEncrypted = cipher.doFinal(contenu.getBytes());
+			byte[] byteEncryptedBase64 = Base64.getEncoder().encode(byteEncrypted);
+			String textEncryptedBase64 = new String(byteEncryptedBase64);
+
+			this.notifyObserver(EMPTY);
+
+			return textEncryptedBase64;
+		} catch ( InvalidAlgorithmParameterException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+         return null;
+	}
+
+	@Override
+	public String decryptText(String contenu, SecretKeySpec key, String methode) throws NoSuchAlgorithmException,
+			NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+		
+		IvParameterSpec ivspec;
+		if (methode.contentEquals(AES_WITH_OPTION)) {
+			byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+			ivspec = new IvParameterSpec(iv);
+		}
+		else {
+			byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0 };
+			ivspec = new IvParameterSpec(iv);
+		}
+		
+		try {
+	        Cipher cipher = Cipher.getInstance(methode);
+	        cipher.init(Cipher.DECRYPT_MODE, key, ivspec);
+	        byte[] text = Base64.getDecoder().decode(contenu.trim());
+			byte[] byteDecrypted = cipher.doFinal(text);
+			String textDecrypted = new String(byteDecrypted);
+			this.notifyObserver(EMPTY);
+
+			return textDecrypted;
+		} catch (InvalidAlgorithmParameterException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+         
+        return null;
+	}
+
+	@Override
+	public ArrayList<Integer> getBlocks(String blocks) {
 		String block[] = blocks.split(SEPARATOR);
 		List<String> tmp = Arrays.asList(block);
 		ArrayList<String> single = new ArrayList<String>(tmp);
 		ArrayList<Integer> listBlocks = new ArrayList<Integer>();
-		for (int i=0; i<single.size(); i++) {
+		for (int i = 0; i < single.size(); i++) {
 			listBlocks.add(Integer.parseInt(single.get(i).trim()));
 		}
 		this.notifyObserver(EMPTY);
 
 		return listBlocks;
 	}
-	
+
 	@Override
-	public String readAndCrypt(String file, Key key, String methode) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+	public String readAndCrypt(String file, SecretKeySpec key, String methode) throws IOException, NoSuchAlgorithmException,
+			NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
 		StringBuffer out = new StringBuffer(EMPTY);
 		StringBuffer toCrypt = new StringBuffer(EMPTY);
 		BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -185,9 +212,11 @@ public class Model extends AbstractModel {
 
 		return out.toString();
 	}
-	
+
 	@Override
-	public String readAndCryptParts(String file, ArrayList<Integer> start, ArrayList<Integer> stop, Key key, String methode) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+	public String readAndCryptParts(String file, ArrayList<Integer> start, ArrayList<Integer> stop, SecretKeySpec key,
+			String methode) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException,
+			IllegalBlockSizeException, BadPaddingException {
 		StringBuffer out = new StringBuffer(EMPTY);
 		StringBuffer toCrypt = new StringBuffer(EMPTY);
 		BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -200,18 +229,15 @@ public class Model extends AbstractModel {
 				out.append(CRYPT_PART + JUMP_LINE);
 				toCrypt.append(line + JUMP_LINE);
 				cryptPart = true;
-			}
-			else if (stop.contains(countLine)) {
+			} else if (stop.contains(countLine)) {
 				toCrypt.append(line + JUMP_LINE);
 				out.append(this.cryptText(toCrypt.toString(), key, methode) + JUMP_LINE);
 				out.append(END_CRYPT_PART + JUMP_LINE);
 				toCrypt = new StringBuffer(EMPTY);
-				cryptPart=false;
-			}
-			else if (cryptPart) {
+				cryptPart = false;
+			} else if (cryptPart) {
 				toCrypt.append(line + JUMP_LINE);
-			}
-			else {
+			} else {
 				out.append(line + JUMP_LINE);
 			}
 			countLine++;
@@ -222,7 +248,7 @@ public class Model extends AbstractModel {
 
 		return out.toString();
 	}
-	
+
 	@Override
 	public String readFirstLine(String file) throws IOException {
 		StringBuffer out = new StringBuffer(EMPTY);
@@ -234,37 +260,33 @@ public class Model extends AbstractModel {
 		reader.close();
 		return out.toString();
 	}
-	
+
 	@Override
-	public String readWithKey(String file, Key key) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException{
+	public String readWithKey(String file, SecretKeySpec key) throws IOException, InvalidKeyException, NoSuchAlgorithmException,
+			NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
 		StringBuffer out = new StringBuffer(EMPTY);
 		StringBuffer toDecrypt = new StringBuffer(EMPTY);
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		String line = new String(EMPTY);
 		Boolean isCryptedPart = false;
 		String methode = new String(EMPTY);
-		
+
 		while ((line = reader.readLine()) != null) {
 			if (line.equals(CRYPT_PART)) {
 
 				isCryptedPart = true;
-			}
-			else if (line.equals(END_CRYPT_PART)) {
+			} else if (line.equals(END_CRYPT_PART)) {
 				out.append(this.decryptText(toDecrypt.toString().trim(), key, methode));
 				isCryptedPart = false;
 				toDecrypt = new StringBuffer(EMPTY);
-			}
-			else if (line.contains(DES)) {
-				methode = DES;
-			}
-			else if (line.contains(AES)) {
-				methode = AES;
-			}
-			else {
+			} else if (line.contains(DES)) {
+				methode = DES_WITH_OPTION;
+			} else if (line.contains(AES)) {
+				methode = AES_WITH_OPTION;
+			} else {
 				if (isCryptedPart) {
 					toDecrypt.append(line + JUMP_LINE);
-				}
-				else {
+				} else {
 					out.append(line + JUMP_LINE);
 				}
 			}
@@ -274,7 +296,7 @@ public class Model extends AbstractModel {
 
 		return out.toString().trim();
 	}
-	
+
 	@Override
 	public String readWithouthKey(String file) throws IOException {
 		StringBuffer out = new StringBuffer(EMPTY);
@@ -284,25 +306,21 @@ public class Model extends AbstractModel {
 		while ((line = reader.readLine()) != null) {
 			if (line.equals(CRYPT_PART)) {
 				isCryptedPart = true;
-			}
-			else if (line.equals(END_CRYPT_PART)) {
+			} else if (line.equals(END_CRYPT_PART)) {
 				isCryptedPart = false;
-			}
-			else if (line.contains(ENCRYPTION)) {
-				
-			}
-			else {
+			} else if (line.contains(ENCRYPTION)) {
+
+			} else {
 				if (!isCryptedPart) {
 					out.append(line + JUMP_LINE);
 				}
-				
-			}	
+
+			}
 		}
 		reader.close();
 		this.notifyObserver(READ_CLICK);
 
 		return out.toString().trim();
 	}
-	
-	
+
 }

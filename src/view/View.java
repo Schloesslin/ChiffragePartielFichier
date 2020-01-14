@@ -14,6 +14,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -54,7 +55,9 @@ public class View extends JFrame implements Observer {
 	private static final String LABEL_WITH_NAME = new String("Output file name : ");
 	private static final String LABEL_METHODE = new String("Methode : ");
 	private static final String AES = new String("AES");
+	private static final String AES_WITH_OPTION = new String("AES/CBC/PKCS5PADDING");
 	private static final String DES = new String("DES");
+	private static final String DES_WITH_OPTION = new String("DES/CBC/PKCS5PADDING");
 	private static final String MDP_EMPTY = new String("Please enter a password");
 	private static final String NAME_EMPTY = new String("Please entrer a name");
 	private static final String BLOCK_EMPTY = new String("Please enter blocks to crypt or tick \"crypt all\"");
@@ -418,15 +421,18 @@ public class View extends JFrame implements Observer {
 	}
 
 	public void crypt() {
+		String methodeOption = new String(EMPTY);
 		String methode = new String(EMPTY);
 		ArrayList<Integer> startBlock = new ArrayList<Integer>();
 		ArrayList<Integer> stopBlock = new ArrayList<Integer>();
 		ArrayList<Integer> blocks = new ArrayList<Integer>();
 		;
 		if (aes.isSelected()) {
+			methodeOption = AES_WITH_OPTION;
 			methode = AES;
 		} else {
 			methode = DES;
+			methodeOption = DES_WITH_OPTION;
 		}
 
 		infoLabel.setText(getInfo());
@@ -437,10 +443,10 @@ public class View extends JFrame implements Observer {
 			if (controler.getAllSelected()) {
 				try {
 					s = controler.readAndCrypt(controler.getPath(), controler.constructKey(cryptKey.getText(), methode),
-							methode);
+							methodeOption);
 					infoLabel.setText(CRYPTED);
 				} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
-						| IllegalBlockSizeException | BadPaddingException | IOException e1) {
+						| IllegalBlockSizeException | BadPaddingException | IOException | InvalidKeySpecException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
@@ -455,10 +461,10 @@ public class View extends JFrame implements Observer {
 				try {
 
 					s = controler.readAndCryptParts(controler.getPath(), startBlock, stopBlock,
-							controler.constructKey(cryptKey.getText(), methode), methode);
+							controler.constructKey(cryptKey.getText(), methode), methodeOption);
 					infoLabel.setText(CRYPTED);
 				} catch (InvalidKeyException | NumberFormatException | NoSuchAlgorithmException | NoSuchPaddingException
-						| IllegalBlockSizeException | BadPaddingException | IOException e1) {
+						| IllegalBlockSizeException | BadPaddingException | IOException | InvalidKeySpecException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
@@ -475,7 +481,6 @@ public class View extends JFrame implements Observer {
 		}
 
 	}
-
 	class CryptButtonListener implements ActionListener {
 
 		@Override
@@ -545,13 +550,14 @@ public class View extends JFrame implements Observer {
 				infoLabel.setText(READ_WITH);
 
 			} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
-					| BadPaddingException | IOException e2) {
+					| BadPaddingException | IOException | InvalidKeySpecException e2) {
 				// TODO Auto-generated catch block
 				// e2.printStackTrace();
 
 				try {
 					toShow = controler.readWithouthKey(controler.getPath());
 					infoLabel.setText(READ_WITHOUT);
+
 
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block

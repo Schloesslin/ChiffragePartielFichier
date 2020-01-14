@@ -2,13 +2,13 @@ package model;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
-import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 
 public abstract class AbstractModel implements Observable {
 
@@ -28,14 +28,14 @@ public abstract class AbstractModel implements Observable {
 	public abstract void toggleAllSelected();
 	public abstract String getFolderPath(String filePath);
 	public abstract void writeFile(String name, String contenu) throws IOException;
-	public abstract Key constructKey(String passwoard, String methode);
-	public abstract String cryptText(String contenu, Key key, String methode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException;
-	public abstract String decryptText(String contenu, Key key, String methode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException;
+	public abstract SecretKeySpec constructKey(String passwoard, String methode) throws NoSuchAlgorithmException, InvalidKeySpecException;
+	public abstract String cryptText(String contenu, SecretKeySpec key, String methode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException;
+	public abstract String decryptText(String contenu, SecretKeySpec key, String methode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException;
 	public abstract ArrayList<Integer> getBlocks(String blocks);
-	public abstract String readAndCrypt(String file, Key key, String methode) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException;
-	public abstract String readAndCryptParts(String file,  ArrayList<Integer> start, ArrayList<Integer> stop, Key key, String methode) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException;
+	public abstract String readAndCrypt(String file, SecretKeySpec key, String methode) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException;
+	public abstract String readAndCryptParts(String file,  ArrayList<Integer> start, ArrayList<Integer> stop, SecretKeySpec key, String methode) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException;
 	public abstract String readFirstLine(String file) throws IOException;
-	public abstract String readWithKey(String file, Key key) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException;
+	public abstract String readWithKey(String file, SecretKeySpec key) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException;
 	public abstract String readWithouthKey(String file) throws IOException;
 
 	@Override
