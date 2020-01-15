@@ -72,6 +72,11 @@ public class View extends JFrame implements Observer {
 	private static final String READ_FILE = new String("Read file");
 	private static final String PREVIEW = new String("Preview");
 	private static final String ARIAL = new String("Arial");
+	private static final String BAD_BLOCK = new String("Block(s) format invalid (example : \"2-12 24-48\")");
+	private static final String SPACE = new String(" ");
+	private static final String ENCRYPTION = new String("encryption");
+	private static final String ID_ENCRYPTION = new String("id=JVCaA#=evykyc?3DX&gb^4waWxUykmaz");
+	private static final String EVER_DONE = new String("File already encrypted");
 
 	private static final Font FONT = new Font(ARIAL, Font.PLAIN, 18);
 	private static final Font FONT_TITLE = new Font(ARIAL, Font.PLAIN, 26);
@@ -405,7 +410,7 @@ public class View extends JFrame implements Observer {
 		}
 	}
 
-	public String getInfo() {
+	public String getInfo() throws IOException {
 		if (cryptKey.getText().equals(EMPTY)) {
 			this.infoLabelPan.setBackground(SOFT_RED);
 			return MDP_EMPTY;
@@ -415,18 +420,24 @@ public class View extends JFrame implements Observer {
 		} else if (!controler.getAllSelected() && block.getText().equals(EMPTY)) {
 			this.infoLabelPan.setBackground(SOFT_RED);
 			return BLOCK_EMPTY;
+		} else if (controler.readFirstLine(controler.getPath()).contains(ENCRYPTION + SPACE + ID_ENCRYPTION)) {
+			this.infoLabelPan.setBackground(SOFT_RED);
+			return EVER_DONE;
+		} else if (controler.getBlocks(block.getText()) == null && !controler.getAllSelected()) {
+			this.infoLabelPan.setBackground(SOFT_RED);
+			return BAD_BLOCK;
 		}
+
 		this.infoLabelPan.setBackground(Color.WHITE);
 		return NOTHING_YET;
 	}
 
-	public void crypt() {
+	public void crypt() throws IOException {
 		String methodeOption = new String(EMPTY);
 		String methode = new String(EMPTY);
 		ArrayList<Integer> startBlock = new ArrayList<Integer>();
 		ArrayList<Integer> stopBlock = new ArrayList<Integer>();
 		ArrayList<Integer> blocks = new ArrayList<Integer>();
-		;
 		if (aes.isSelected()) {
 			methodeOption = AES_WITH_OPTION;
 			methode = AES;
@@ -445,6 +456,9 @@ public class View extends JFrame implements Observer {
 					s = controler.readAndCrypt(controler.getPath(), controler.constructKey(cryptKey.getText(), methode),
 							methodeOption);
 					infoLabel.setText(CRYPTED);
+
+					controler.writeFile(name.getText(), s);
+
 				} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
 						| IllegalBlockSizeException | BadPaddingException | IOException | InvalidKeySpecException e1) {
 					// TODO Auto-generated catch block
@@ -463,31 +477,33 @@ public class View extends JFrame implements Observer {
 					s = controler.readAndCryptParts(controler.getPath(), startBlock, stopBlock,
 							controler.constructKey(cryptKey.getText(), methode), methodeOption);
 					infoLabel.setText(CRYPTED);
+
+					controler.writeFile(name.getText(), s);
+
 				} catch (InvalidKeyException | NumberFormatException | NoSuchAlgorithmException | NoSuchPaddingException
 						| IllegalBlockSizeException | BadPaddingException | IOException | InvalidKeySpecException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-			}
-			try {
-				controler.writeFile(name.getText(), s);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				blocks.clear();
 			}
 			startBlock.clear();
 			stopBlock.clear();
-			blocks.clear();
 		}
-
 	}
+
 	class CryptButtonListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
 			selectFile(e);
-			crypt();
+			try {
+				crypt();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 	}
 
@@ -548,7 +564,7 @@ public class View extends JFrame implements Observer {
 			try {
 				toShow = controler.readWithKey(controler.getPath(), controler.constructKey(readKey.getText(), methode));
 				infoLabel.setText(READ_WITH);
-
+				infoLabelPan.setBackground(SOFT_GREEN);
 			} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
 					| BadPaddingException | IOException | InvalidKeySpecException e2) {
 				// TODO Auto-generated catch block
@@ -557,8 +573,7 @@ public class View extends JFrame implements Observer {
 				try {
 					toShow = controler.readWithouthKey(controler.getPath());
 					infoLabel.setText(READ_WITHOUT);
-
-
+					infoLabelPan.setBackground(SOFT_GREEN);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -579,6 +594,7 @@ public class View extends JFrame implements Observer {
 			this.readKey.setText(EMPTY);
 			this.filePathRead.setText(EMPTY);
 		}
+
 		this.block.setEditable(!this.controler.getAllSelected());
 
 	}

@@ -369,7 +369,7 @@ public class TestApplication {
 	}
 	
 	@Test
-	public void testGetInfo() {
+	public void testGetInfo() throws IOException {
 		AbstractModel model = new Model();
 		AbstractControler controler = new Controler(model);
 		View view = new View(controler);

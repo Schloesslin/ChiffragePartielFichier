@@ -33,6 +33,8 @@ public class Model extends AbstractModel {
 	private static String SPACE = new String(" ");
 	private static String EXTEND_TXT = new String(".txt");
 	private static String SLASH = new String("/");
+	private static String SEL = new String("sel");
+	private static String INSTANCE_KEY = new String("PBKDF2WithHmacSHA256");
 	private static String AES_WITH_OPTION = new String("AES/CBC/PKCS5PADDING");
 	private static String AES = new String("AES");
 	private static String DES_WITH_OPTION = new String("DES/CBC/PKCS5PADDING");
@@ -41,6 +43,8 @@ public class Model extends AbstractModel {
 	private static String SEPARATOR = new String("[- ]");
 	private static String READ_CLICK = new String("ReadClick");
 	private static String CRYPT_CLICK = new String("CryptClick");
+	private static String ID_PART = new String("id=ZyCd@Fe6WpRaCX#a#s2%py36XqvjmysY");
+	private static String ID_ENCRYPTION = new String("id=JVCaA#=evykyc?3DX&gb^4waWxUykmaz");
 
 	public Model() {
 		this.allSelected = false;
@@ -101,13 +105,13 @@ public class Model extends AbstractModel {
 
 	@Override
 	public SecretKeySpec constructKey(String passwoard, String methode) throws NoSuchAlgorithmException, InvalidKeySpecException {
-		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+		SecretKeyFactory factory = SecretKeyFactory.getInstance(INSTANCE_KEY);
 		KeySpec spec;
 		if (methode.equals(AES)) {
-	        spec = new PBEKeySpec(passwoard.toCharArray(), "ssshhhhhhhhhhh!!!!".getBytes(), 65536, 256);
+	        spec = new PBEKeySpec(passwoard.toCharArray(), SEL.getBytes(), 65536, 256);
 		}
 		else {
-			spec = new PBEKeySpec(passwoard.toCharArray(), "ssshhhhhhhhhhh!!!!".getBytes(), 65536, 64);
+			spec = new PBEKeySpec(passwoard.toCharArray(), SEL.getBytes(), 65536, 64);
 		}
 		
         SecretKey tmp;
@@ -185,7 +189,14 @@ public class Model extends AbstractModel {
 		ArrayList<String> single = new ArrayList<String>(tmp);
 		ArrayList<Integer> listBlocks = new ArrayList<Integer>();
 		for (int i = 0; i < single.size(); i++) {
-			listBlocks.add(Integer.parseInt(single.get(i).trim()));
+			try {
+				listBlocks.add(Integer.parseInt(single.get(i).trim()));
+			} catch (NumberFormatException e1) {
+				// TODO Auto-generated catch block
+				//e1.printStackTrace();
+				this.notifyObserver(EMPTY);
+				return null;
+			}
 		}
 		this.notifyObserver(EMPTY);
 
@@ -199,15 +210,15 @@ public class Model extends AbstractModel {
 		StringBuffer toCrypt = new StringBuffer(EMPTY);
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		String line = new String(EMPTY);
-		out.append(methode + SPACE + ENCRYPTION + JUMP_LINE);
+		out.append(methode + SPACE + ENCRYPTION + SPACE + ID_ENCRYPTION + JUMP_LINE);
 
 		while ((line = reader.readLine()) != null) {
 			toCrypt.append(line + JUMP_LINE);
 		}
 		reader.close();
-		out.append(CRYPT_PART + JUMP_LINE);
+		out.append(CRYPT_PART + SPACE + ID_PART + JUMP_LINE);
 		out.append(this.cryptText(toCrypt.toString(), key, methode).trim());
-		out.append(JUMP_LINE + END_CRYPT_PART + JUMP_LINE);
+		out.append(JUMP_LINE + END_CRYPT_PART + SPACE + ID_PART + JUMP_LINE);
 		this.notifyObserver(EMPTY);
 
 		return out.toString();
@@ -223,16 +234,16 @@ public class Model extends AbstractModel {
 		String line = new String(EMPTY);
 		boolean cryptPart = false;
 		int countLine = 1;
-		out.append(methode + SPACE + ENCRYPTION + JUMP_LINE);
+		out.append(methode + SPACE + ENCRYPTION + ID_ENCRYPTION + JUMP_LINE);
 		while ((line = reader.readLine()) != null) {
 			if (start.contains(countLine)) {
-				out.append(CRYPT_PART + JUMP_LINE);
+				out.append(CRYPT_PART + SPACE + ID_PART + JUMP_LINE);
 				toCrypt.append(line + JUMP_LINE);
 				cryptPart = true;
 			} else if (stop.contains(countLine)) {
 				toCrypt.append(line + JUMP_LINE);
 				out.append(this.cryptText(toCrypt.toString(), key, methode) + JUMP_LINE);
-				out.append(END_CRYPT_PART + JUMP_LINE);
+				out.append(END_CRYPT_PART + SPACE + ID_PART + JUMP_LINE);
 				toCrypt = new StringBuffer(EMPTY);
 				cryptPart = false;
 			} else if (cryptPart) {
@@ -254,7 +265,7 @@ public class Model extends AbstractModel {
 		StringBuffer out = new StringBuffer(EMPTY);
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		String line = new String(EMPTY);
-		if ((line = reader.readLine()) != null && !line.equals("")) {
+		if ((line = reader.readLine()) != null && !line.equals(EMPTY)) {
 			out.append(line);
 		}
 		reader.close();
@@ -272,16 +283,15 @@ public class Model extends AbstractModel {
 		String methode = new String(EMPTY);
 
 		while ((line = reader.readLine()) != null) {
-			if (line.equals(CRYPT_PART)) {
-
+			if (line.equals(CRYPT_PART + SPACE + ID_PART)) {
 				isCryptedPart = true;
-			} else if (line.equals(END_CRYPT_PART)) {
+			} else if (line.equals(END_CRYPT_PART + SPACE + ID_PART)) {
 				out.append(this.decryptText(toDecrypt.toString().trim(), key, methode));
 				isCryptedPart = false;
 				toDecrypt = new StringBuffer(EMPTY);
-			} else if (line.contains(DES)) {
+			} else if (line.contains(DES) && line.contains(ENCRYPTION + SPACE + ID_ENCRYPTION)) {
 				methode = DES_WITH_OPTION;
-			} else if (line.contains(AES)) {
+			} else if (line.contains(AES) && line.contains(ENCRYPTION + SPACE + ID_ENCRYPTION)) {
 				methode = AES_WITH_OPTION;
 			} else {
 				if (isCryptedPart) {
@@ -304,11 +314,11 @@ public class Model extends AbstractModel {
 		String line = new String(EMPTY);
 		Boolean isCryptedPart = false;
 		while ((line = reader.readLine()) != null) {
-			if (line.equals(CRYPT_PART)) {
+			if (line.equals(CRYPT_PART + SPACE + ID_PART)) {
 				isCryptedPart = true;
-			} else if (line.equals(END_CRYPT_PART)) {
+			} else if (line.equals(END_CRYPT_PART + SPACE + ID_PART)) {
 				isCryptedPart = false;
-			} else if (line.contains(ENCRYPTION)) {
+			} else if (line.contains(ID_ENCRYPTION)) {
 
 			} else {
 				if (!isCryptedPart) {
