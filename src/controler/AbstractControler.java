@@ -92,6 +92,10 @@ public abstract class AbstractControler {
 		this.control();
 		return this.model.readWithouthKey(file);
 	}
+	public int countLine(String file) throws IOException{
+		this.control();
+		return this.model.countLine(file);
+	}
 
 	// Méthode de contrôle
 	abstract void control();

@@ -77,6 +77,7 @@ public class View extends JFrame implements Observer {
 	private static final String ENCRYPTION = new String("encryption");
 	private static final String ID_ENCRYPTION = new String("id=JVCaA#=evykyc?3DX&gb^4waWxUykmaz");
 	private static final String EVER_DONE = new String("File already encrypted");
+	private static final String BLOCK_OUT_OF_RANGE = new String("Block out of range");
 
 	private static final Font FONT = new Font(ARIAL, Font.PLAIN, 18);
 	private static final Font FONT_TITLE = new Font(ARIAL, Font.PLAIN, 26);
@@ -432,6 +433,16 @@ public class View extends JFrame implements Observer {
 		return NOTHING_YET;
 	}
 
+	public boolean verifyBlock(ArrayList<Integer> blocks, String file) throws IOException{
+		int size = controler.countLine(file);
+		for(Integer i : blocks) {
+			if(i > size) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	public void crypt() throws IOException {
 		String methodeOption = new String(EMPTY);
 		String methode = new String(EMPTY);
@@ -467,25 +478,31 @@ public class View extends JFrame implements Observer {
 
 			} else {
 				blocks = controler.getBlocks(block.getText());
+				if(this.verifyBlock(blocks, controler.getPath())) {
+					for (int i = 0; i < blocks.size() - 1; i += 2) {
+						startBlock.add(blocks.get(i));
+						stopBlock.add(blocks.get(i + 1));
+					}
+					try {
 
-				for (int i = 0; i < blocks.size() - 1; i += 2) {
-					startBlock.add(blocks.get(i));
-					stopBlock.add(blocks.get(i + 1));
+						s = controler.readAndCryptParts(controler.getPath(), startBlock, stopBlock,
+								controler.constructKey(cryptKey.getText(), methode), methodeOption);
+						infoLabel.setText(CRYPTED);
+
+						controler.writeFile(name.getText(), s);
+
+					} catch (InvalidKeyException | NumberFormatException | NoSuchAlgorithmException | NoSuchPaddingException
+							| IllegalBlockSizeException | BadPaddingException | IOException | InvalidKeySpecException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					blocks.clear();
 				}
-				try {
-
-					s = controler.readAndCryptParts(controler.getPath(), startBlock, stopBlock,
-							controler.constructKey(cryptKey.getText(), methode), methodeOption);
-					infoLabel.setText(CRYPTED);
-
-					controler.writeFile(name.getText(), s);
-
-				} catch (InvalidKeyException | NumberFormatException | NoSuchAlgorithmException | NoSuchPaddingException
-						| IllegalBlockSizeException | BadPaddingException | IOException | InvalidKeySpecException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				else {
+					infoLabelPan.setBackground(SOFT_RED);
+					infoLabel.setText(BLOCK_OUT_OF_RANGE);
 				}
-				blocks.clear();
+				
 			}
 			startBlock.clear();
 			stopBlock.clear();

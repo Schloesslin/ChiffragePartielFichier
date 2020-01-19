@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -234,7 +235,7 @@ public class Model extends AbstractModel {
 		String line = new String(EMPTY);
 		boolean cryptPart = false;
 		int countLine = 1;
-		out.append(methode + SPACE + ENCRYPTION + ID_ENCRYPTION + JUMP_LINE);
+		out.append(methode + SPACE + ENCRYPTION + SPACE + ID_ENCRYPTION + JUMP_LINE);
 		while ((line = reader.readLine()) != null) {
 			if (start.contains(countLine)) {
 				out.append(CRYPT_PART + SPACE + ID_PART + JUMP_LINE);
@@ -331,6 +332,19 @@ public class Model extends AbstractModel {
 		this.notifyObserver(READ_CLICK);
 
 		return out.toString().trim();
+	}
+
+	@Override
+	public int countLine(String file) throws IOException {
+		// TODO Auto-generated method stub
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		int count = 0;
+		while (reader.readLine() != null) {
+			count++;
+		}
+		reader.close();
+
+		return count;
 	}
 
 }

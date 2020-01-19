@@ -5,6 +5,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -37,6 +38,7 @@ public abstract class AbstractModel implements Observable {
 	public abstract String readFirstLine(String file) throws IOException;
 	public abstract String readWithKey(String file, SecretKeySpec key) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException;
 	public abstract String readWithouthKey(String file) throws IOException;
+	public abstract int countLine(String file) throws IOException;
 
 	@Override
 	public void addObserver(Observer obs) {
